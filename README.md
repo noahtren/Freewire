@@ -20,7 +20,7 @@ freely wired neural networks carry out a series of parallelized operations that 
 1D tape of numbers. This is a generalization of what layers already do (if their representations were flattened), 
 but doesn't specify that the inputs and activation functions of each node in a given operation need to be homogeneous. 
 This graphic shows the 1D tape on the left and the freely wired
-neural network that it represents on the right.
+neural network that it represents on the right (biases are left out in this image for simplicity).
 
 <img src="https://i.imgur.com/ouGgwEQ.png" height="300"><img src="https://i.imgur.com/13KNQ6f.png" height="300">
 
