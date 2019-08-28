@@ -31,8 +31,8 @@ and run on CUDA.
 
 ### Example -- XOR Gate
 ```python
-from graph import Node, Graph
-from model import Network
+from freewire.graph import Node, Graph
+from freewire.model import Network
 
 # node with no arguments is an input node
 inputs = [Node(), Node()]
