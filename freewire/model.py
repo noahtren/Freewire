@@ -32,7 +32,7 @@ activation_map = {
 }
 
 class Op(nn.Module):
-  def __init__(self, nodes, network):
+  def __init__(self, nodes, network, he_initialization=True):
     """Parallelized operation on network tape.
 
     # Arguments
@@ -58,14 +58,21 @@ class Op(nn.Module):
       output_indices.append(node.tape_index)
       node.assigned = True
     self.input_indices = torch.nn.utils.rnn.pad_sequence(input_indices, batch_first=True).cuda()
+    unique, inverse = torch.unique(self.input_indices, return_inverse=True, sorted=False)
+    self.unique_input_indices = unique
+    self.inverse_input_indices = torch.unsqueeze(inverse, dim=0)
     self.output_indices = torch.tensor(output_indices).cuda()
     self.network = network
     # setup parameters
     prev_sizes = (self.input_indices!=0).sum(dim=1)
     prev_sizes = torch.unsqueeze(prev_sizes, 1).type(torch.float).cuda()
-    scales = (2 / prev_sizes) ** (1/2) # neuron-level He initialization
-    # weights = torch.randn(self.input_indices.shape).cuda() * scales
-    weights = (torch.rand(self.input_indices.shape).cuda() * 2) - 1
+    weights = None
+    if he_initialization:
+      scales = (2 / prev_sizes) ** (1/2) # neuron-level He initialization
+      weights = torch.randn(self.input_indices.shape).cuda() * scales
+    else:
+      # initialize uniformly from -1 to 1
+      weights = (torch.rand(self.input_indices.shape).cuda() * 2) - 1
     weights[self.input_indices == 0] = 0
     self.weights = torch.nn.Parameter(weights)
     self.bias = torch.nn.Parameter(torch.zeros(self.input_indices.shape[0]).cuda())
@@ -88,8 +95,13 @@ class Op(nn.Module):
 
   def forward(self, tape):
     # gather relevant values from network tape
-    # TODO: replace with torch.gather
-    x = tape.clone()[:, self.input_indices]
+    with torch.no_grad():
+      batch_size = tape.shape[0]
+      input_indices = self.inverse_input_indices
+      input_indices = input_indices.expand(batch_size, -1, -1)
+      _x = torch.index_select(tape, 1, self.unique_input_indices)
+      _x = torch.unsqueeze(_x, dim=1).expand(-1, input_indices.shape[1], -1)
+    x = torch.gather(_x, 2, input_indices)
     # weighted sum
     x = torch.mul(x, self.weights)
     x = torch.sum(x, dim=2)
