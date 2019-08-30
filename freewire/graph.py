@@ -37,7 +37,7 @@ class Node:
     # attributes to be set later
     self.tape_index = -1
     self.assigned = False
-    self.bias = None
+    self.bias = 0
 
 class Edge:
   def __init__(self, start, end):
@@ -45,7 +45,7 @@ class Edge:
     self.end = end
     self.start.out_edges.append(self)
     self.end.in_edges.append(self)
-    self.weight = None
+    self.weight = 0
 
 class Graph:
   def __init__(self, input_nodes, hidden_nodes, output_nodes):
