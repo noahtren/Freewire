@@ -18,21 +18,13 @@ import numpy as np
 
 from .utils import Timer
 from .graph import Node, Edge, Graph
+from .model_utils import activation_map, initialization_map
 
 t = Timer()
 batch_times = []
 
-activation_map = {
-  'relu': F.relu,
-  'selu': F.selu,
-  'linear':lambda x: x, # identity
-  'leaky':F.leaky_relu,
-  'sigmoid':F.sigmoid,
-  'softmax':F.softmax
-}
-
 class Op(nn.Module):
-  def __init__(self, nodes, network, he_initialization=True):
+  def __init__(self, nodes, network, initialization="He"):
     """Parallelized operation on network tape.
 
     # Arguments
@@ -64,15 +56,8 @@ class Op(nn.Module):
     self.output_indices = torch.tensor(output_indices).cuda()
     self.network = network
     # setup parameters
-    prev_sizes = (self.input_indices!=0).sum(dim=1)
-    prev_sizes = torch.unsqueeze(prev_sizes, 1).type(torch.float).cuda()
-    weights = None
-    if he_initialization:
-      scales = (2 / prev_sizes) ** (1/2) # neuron-level He initialization
-      weights = torch.randn(self.input_indices.shape).cuda() * scales
-    else:
-      # initialize uniformly from -1 to 1
-      weights = (torch.rand(self.input_indices.shape).cuda() * 2) - 1
+    weights = initialization_map[initialization](self.input_indices)
+    weights = weights.cuda()
     weights[self.input_indices == 0] = 0
     self.weights = torch.nn.Parameter(weights)
     self.bias = torch.nn.Parameter(torch.zeros(self.input_indices.shape[0]).cuda())
@@ -99,8 +84,8 @@ class Op(nn.Module):
       batch_size = tape.shape[0]
       input_indices = self.inverse_input_indices
       input_indices = input_indices.expand(batch_size, -1, -1)
-      _x = torch.index_select(tape, 1, self.unique_input_indices)
-      _x = torch.unsqueeze(_x, dim=1).expand(-1, input_indices.shape[1], -1)
+    _x = torch.index_select(tape, 1, self.unique_input_indices)
+    _x = torch.unsqueeze(_x, dim=1).expand(-1, input_indices.shape[1], -1)
     x = torch.gather(_x, 2, input_indices)
     # weighted sum
     x = torch.mul(x, self.weights)
