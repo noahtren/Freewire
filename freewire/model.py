@@ -115,7 +115,6 @@ class Model(nn.Module):
         to produce an output.
     """
     super().__init__()
-    graph = deepcopy(graph)
     self.inputs = graph.input_nodes
     self.hidden = graph.hidden_nodes
     self.outputs = graph.output_nodes
