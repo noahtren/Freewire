@@ -11,7 +11,7 @@ activation_map = {
   'linear':lambda x: x, # identity
   'leaky':F.leaky_relu,
   'sigmoid':F.sigmoid,
-  'softmax':F.softmax
+  'softmax':torch.nn.Softmax(dim=1)
 }
 
 def he_initialization(input_indices):
