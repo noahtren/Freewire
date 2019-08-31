@@ -9,6 +9,7 @@ layer doesn't seem to get satisfied
 
 import code
 import time
+from copy import deepcopy
 
 import torch
 import torch.nn as nn
@@ -21,10 +22,9 @@ from .graph import Node, Edge, Graph
 from .model_utils import activation_map, initialization_map
 
 t = Timer()
-batch_times = []
 
 class Op(nn.Module):
-  def __init__(self, nodes, network, initialization="He"):
+  def __init__(self, nodes, network, initialization):
     """Parallelized operation on network tape.
 
     # Arguments
@@ -71,7 +71,7 @@ class Op(nn.Module):
     self.activation_index_map = activation_index_map
 
   def update_graph(self):
-    """Update values in graph data structure used for visualization.
+    """Called by Model.update_graph()
     """
     for i, node in enumerate(self.nodes):
       node.bias = self.bias[i].item()
@@ -98,8 +98,8 @@ class Op(nn.Module):
     tape[:, self.output_indices] = x
     return tape
 
-class Network(nn.Module):
-  def __init__(self, graph):
+class Model(nn.Module):
+  def __init__(self, graph, initialization="he"):
     """Freely wired neural network defined by graph data structure.
 
     # Arguments
@@ -115,6 +115,7 @@ class Network(nn.Module):
         to produce an output.
     """
     super().__init__()
+    graph = deepcopy(graph)
     self.inputs = graph.input_nodes
     self.hidden = graph.hidden_nodes
     self.outputs = graph.output_nodes
@@ -124,6 +125,7 @@ class Network(nn.Module):
     self.output_size = len(self.outputs)
     self.tape = None
     self.ops = []
+    self.initialization = initialization
     self.construct()
     # settings to compile
     self.optimizer = None
@@ -172,7 +174,7 @@ class Network(nn.Module):
       for node in op_nodes:
         remaining_nodes.remove(node)
       if op_nodes != []:
-        ops.append(Op(op_nodes, self))
+        ops.append(Op(op_nodes, self, self.initialization))
     self.ops = nn.ModuleList(ops)
     # determine the indices of the tape that correspond to outputs
     self.outputs = sorted(self.outputs, key=lambda x: x.output_index)
@@ -180,10 +182,11 @@ class Network(nn.Module):
     self.output_indices = torch.tensor(output_indices)
 
   def update_graph(self):
-    for node in self.inputs:
-      node.bias = 0
+    """Update values in graph data structure used for visualization.
+    """
     for op in self.ops:
       op.update_graph()
+    return Graph(self.inputs, self.hidden, self.outputs)
 
   def forward(self, x):
     """Write input to tape and perform operations in order. Return
@@ -251,6 +254,5 @@ class Network(nn.Module):
         bars = int(batch * 40 / num_batches)
         print("█" * bars, end='')
         print("░" * (40 - bars), end="\r")
-        batch_times.append(time.time() - batch_time)
       epoch_loss /= num_batches
       print("epoch [{}/{}] loss: {}".format(epoch + 1, epochs, epoch_loss), end=" " * 30 + "\n")
