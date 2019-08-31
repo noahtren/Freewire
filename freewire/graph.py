@@ -1,9 +1,6 @@
 """Graph data structure for defining freely wired neural networks.
 """
 
-# global list of edges
-edges = []
-
 class Node:
   def __init__(self, inputs=[], output_index=-1, activation='linear', op_id='any'):
     if isinstance(inputs, Node):
@@ -32,7 +29,9 @@ class Node:
     self.out_edges = []
     self.in_edges = []
     for inp in self.inputs:
-      edges.append(Edge(inp, self))
+      new_edge = Edge(inp, self)
+      inp.out_edges.append(new_edge)
+      self.in_edges.append(new_edge)
 
     # attributes to be set later
     self.tape_index = -1
@@ -43,13 +42,13 @@ class Edge:
   def __init__(self, start, end):
     self.start = start
     self.end = end
-    self.start.out_edges.append(self)
-    self.end.in_edges.append(self)
     self.weight = 0
 
 class Graph:
   def __init__(self, input_nodes, hidden_nodes, output_nodes):
-    global edges
+    edges = []
+    for node in hidden_nodes + output_nodes:
+      edges += node.in_edges
     self.edges = edges
     self.input_nodes = input_nodes
     self.hidden_nodes = hidden_nodes
