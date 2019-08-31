@@ -33,7 +33,15 @@ def uniform(input_indices):
   weights = (torch.rand(input_indices.shape).cuda() * 2) - 1
   return weights
 
+def self_normalized(input_indices):
+  """Initialization routine according to Self-Normalizing
+  Neural Networks. https://arxiv.org/abs/1706.02515
+  """
+  weights = torch.randn(input_indices.shape)
+  return weights
+
 initialization_map = {
-  'He':he_initialization,
-  'uniform':uniform
+  'he':he_initialization,
+  'uniform':uniform,
+  'self_normalized':self_normalized
 }
