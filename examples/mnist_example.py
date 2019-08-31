@@ -6,8 +6,8 @@ import torch
 import matplotlib.pyplot as plt
 
 
-from freewire.model import *
-from freewire.graph import *
+from freewire.model import Model
+from freewire.graph import Node, Graph
 
 """Data prep
 """
@@ -30,19 +30,21 @@ y_val = torch.tensor(y_val, dtype=torch.long)
 
 """Model creation
 """
+
 inputs = [Node() for _ in range(0, 784)]
 hidden = [Node(inputs, activation='selu') for _ in range(0, 200)]
 hidden2 = [Node(random.choices(hidden, k=100), activation='selu') for _ in range(0, 50)]
 outputs = [Node(hidden + hidden2, activation='softmax') for _ in range(10)]
 g = Graph(inputs, hidden + hidden2, outputs)
-net = Network(g)
-net.compile('adam', 'crossentropy')
-net.fit(X_tr, y_tr, epochs=10, batch_size=128)
+m = Model(g, initialization='he')
+m.compile('adam', 'crossentropy')
+m.fit(X_tr, y_tr, epochs=10, batch_size=128)
 
 preds = []
 for i in range(0, 20):
-  preds.append(net(X_val[i*500:(i+1)*500]).cpu().detach())
+  preds.append(m(X_val[i*500:(i+1)*500]).cpu().detach())
 
 pred = torch.cat(preds, axis=0)
 label_pred = pred.argmax(axis=1)
 correct = (label_pred == y_val).nonzero().shape[0]
+print("Final accuracy: {}/10000".format(correct))
