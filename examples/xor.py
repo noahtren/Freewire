@@ -1,5 +1,5 @@
-from freewire.graph import Node, Graph
-from freewire.model import Model
+from freewire import Node, Graph
+from freewire import Model
 
 # node with no arguments is an input node
 inputs = [Node(), Node()]
