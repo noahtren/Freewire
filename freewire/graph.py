@@ -2,7 +2,7 @@
 """
 
 class Node:
-  """Node in Freely wired neural network.
+  """Node in freely wired neural network.
   # Arguments
     inputs: a list of input nodes. Pass no argument if this is an input node
     output_index: optionally specify index of output node in flattened output tensor
@@ -52,7 +52,17 @@ class Edge:
     self.weight = 0
 
 class Graph:
+  """Graph representing topology of freely wired neural network.
+  # Arguments
+    input_nodes: list of input nodes
+    hidden_nodes: list of hidden nodes, not necessarily ordered (although it does
+      make compilation more efficient)
+    output_nodes: list of output nodes
+  """
   def __init__(self, input_nodes, hidden_nodes, output_nodes):
+    assert isinstance(input_nodes, list)
+    assert isinstance(hidden_nodes, list)
+    assert isinstance(output_nodes, list)
     edges = []
     for node in hidden_nodes + output_nodes:
       edges += node.in_edges
