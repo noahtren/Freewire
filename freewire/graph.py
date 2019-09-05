@@ -2,6 +2,13 @@
 """
 
 class Node:
+  """Node in Freely wired neural network.
+  # Arguments
+    inputs: a list of input nodes. Pass no argument if this is an input node
+    output_index: optionally specify index of output node in flattened output tensor
+    activation: activation function. Options are defined in freewire/model_utils.py
+    op_id: optional operation id, used to force Nodes to exist in the same operation
+  """
   def __init__(self, inputs=[], output_index=-1, activation='linear', op_id='any'):
     if isinstance(inputs, Node):
       inputs = [inputs]
