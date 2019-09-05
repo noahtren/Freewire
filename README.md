@@ -31,8 +31,8 @@ and run on CUDA.
 
 ### Example -- XOR Gate
 ```python
-from freewire.graph import Node, Graph
-from freewire.model import Model
+from freewire import Node, Graph
+from freewire import Model
 
 # node with no arguments is an input node
 inputs = [Node(), Node()]
@@ -57,8 +57,8 @@ print("0 xor 1:", m([0, 1]))
 print("1 xor 0:", m([1, 0]))
 print("1 xor 1:", m([1, 1]))
 ```
-### Examples
-See the `examples` folder for demos with the MNIST and CIFAR-10 datasets. (CIFAR-10 not implemented yet)
+### More Examples
+See the `examples` folder for more examples, including a network for MNIST with randomly wired layers.
 
 ### Installation
 `git clone` this repository and install project requirements with `pip install -r requirements.txt`
