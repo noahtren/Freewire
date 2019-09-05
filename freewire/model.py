@@ -1,10 +1,4 @@
-"""TODO:
-find ways to optimize speed, especially with indexing
-inspect performance with
-python -m torch.utils.bottleneck demo.py
-
-fix problem with construction of graph -- final
-layer doesn't seem to get satisfied
+"""Freely wired neural network model with parallel operations.
 """
 
 import code
@@ -233,6 +227,7 @@ class Model(nn.Module):
         X_tr.shape[1], self.input_size)
     # begin training in batches
     num_batches = (len(X_tr) // batch_size)
+    print("epoch [0/{}]".format(epochs))
     for epoch in range(0, epochs):
       epoch_loss = 0
       for batch in range(0, num_batches):
