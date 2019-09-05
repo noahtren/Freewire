@@ -5,9 +5,8 @@ import numpy as np
 import torch
 import matplotlib.pyplot as plt
 
-
-from freewire.model import Model
-from freewire.graph import Node, Graph
+from freewire import Model
+from freewire import Node, Graph
 
 """Data prep
 """
