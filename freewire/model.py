@@ -194,6 +194,7 @@ class Model(nn.Module):
     batch_size = x.shape[0]
     t.start('Writing to tape')
     tape = torch.zeros(batch_size, self.tape_size).cuda()
+    # TODO: implement scatter operation here 
     tape[:, 1:self.input_size+1] = x
     t.end('Writing to tape')
     for i, op in enumerate(self.ops):
