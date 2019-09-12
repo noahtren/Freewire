@@ -180,6 +180,9 @@ class Model(nn.Module):
     for op in self.ops:
       op.update_graph()
     return Graph(self.inputs, self.hidden, self.outputs)
+  
+  def count_params(self):
+    return sum([len(node.in_edges) for node in self.hidden + self.outputs])
 
   def forward(self, x):
     """Write input to tape and perform operations in order. Return
@@ -192,9 +195,14 @@ class Model(nn.Module):
       batch_size = 1
     assert len(x.shape) == 2, "Input must be flattened batches (2D)"
     batch_size = x.shape[0]
-    t.start('Writing to tape')
-    tape = torch.zeros(batch_size, self.tape_size).cuda()
+    t.start('Initialize tape')
+    if self.tape is not None and self.tape.shape[0] == batch_size:
+      tape = self.tape.detach().fill_(0)
+    else:
+      tape = torch.zeros(batch_size, self.tape_size).cuda()
+    t.end('Initialize tape')
     # TODO: implement scatter operation here 
+    t.start('Writing to tape')
     tape[:, 1:self.input_size+1] = x
     t.end('Writing to tape')
     for i, op in enumerate(self.ops):
@@ -227,8 +235,8 @@ class Model(nn.Module):
       "Input size given ({}) doesn't match this network's input size ({})".format(
         X_tr.shape[1], self.input_size)
     # begin training in batches
+    print("Training on {} samples".format(len(X_tr)))
     num_batches = (len(X_tr) // batch_size)
-    print("epoch [0/{}]".format(epochs))
     for epoch in range(0, epochs):
       epoch_loss = 0
       for batch in range(0, num_batches):
