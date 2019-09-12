@@ -1,6 +1,7 @@
 # Freewire: Freely Wired Neural Networks
 This repository is a collection of code for defining, visualizing, and training
-freely wired neural networks. Freely wired neural networks operate at the level of individual nodes (or "neurons") and connections between them, instead of at
+optimized freely wired neural networks. Freely wired neural networks operate at 
+the level of individual nodes (or "neurons") and connections between them, instead of at
 the level of homogeneous layers.
 
 The SOTA in deep learning is generally propelled by unique neural network architectures. For 
@@ -10,9 +11,13 @@ and achieve greater accuracy than models with layers that only operate on the re
 of the previous layer.
 
 The recent work from [Facebook](https://arxiv.org/abs/1904.01569) shows that some randomly
-wired neural networks have competitive performance on ImageNet. This repository
-is a starting point for exploring how to design and optimize neural networks
-that can be wired in very novel ways at the level of individual artificial neurons.
+wired neural networks have competitive performance on ImageNet. Also, Google introduced
+[Weight Agnostic Neural Networks](https://arxiv.org/abs/1906.04358) which focuses on evolving
+neural network architectures with uniform weights between all connections.
+
+This repository is a starting point for exploring how to design and optimize neural networks
+that can be wired in very novel ways at the level of individual artificial neurons, while
+retaining the ability to train them with backpropagation.
 
 ### Parallel Operations, not Layers
 Instead of viewing a network as a series of layers that each have their own representation,
