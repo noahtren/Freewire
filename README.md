@@ -4,7 +4,7 @@ optimized freely wired neural networks. Freely wired neural networks operate at
 the level of individual nodes (or "neurons") and connections between them, instead of at
 the level of homogeneous layers.
 
-The SOTA in deep learning is generally propelled by unique neural network architectures. For 
+The SOTA in deep learning is often propelled by unique neural network architectures. For 
 example, residual connections as implemented by [ResNet](https://arxiv.org/abs/1512.03385) 
 and [DenseNet](https://arxiv.org/abs/1608.06993) make it feasible to train larger neural networks
 and achieve greater accuracy than models with layers that only operate on the representation
