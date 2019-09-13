@@ -88,7 +88,9 @@ class Op(nn.Module):
     x = torch.add(x, self.bias)
     # activation functions (operations can have different activations per neuron)
     for activation, indices in self.activation_index_map.items():
-      x[:, indices] = activation_map[activation](x.clone()[:, indices])
+      indices = torch.unsqueeze(indices, 0).expand(batch_size, -1)
+      activated = activation_map[activation](torch.gather(x, 1, indices))
+      x = x.scatter(1, indices, activated)
     tape[:, self.output_indices] = x
     return tape
 
