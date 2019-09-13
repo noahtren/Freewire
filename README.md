@@ -74,6 +74,3 @@ Requirements are:
 * pydot
 
 Then install this package with `pip install .`
-
-### Development
-I am still actively developing the code here. See [todo.md](todo.md).
