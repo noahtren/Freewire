@@ -36,6 +36,8 @@ class Op(nn.Module):
     """
     super().__init__()
     self.nodes = nodes
+    self.network = network
+    # setup tape indices
     input_indices = []
     output_indices = []
     for node in nodes:
@@ -44,11 +46,10 @@ class Op(nn.Module):
       output_indices.append(node.tape_index)
       node.assigned = True
     self.input_indices = torch.nn.utils.rnn.pad_sequence(input_indices, batch_first=True).cuda()
+    self.output_indices = torch.tensor(output_indices).cuda()
     unique, inverse = torch.unique(self.input_indices, return_inverse=True, sorted=False)
     self.unique_input_indices = unique
     self.inverse_input_indices = torch.unsqueeze(inverse, dim=0)
-    self.output_indices = torch.tensor(output_indices).cuda()
-    self.network = network
     # setup parameters
     weights = initialization_map[initialization](self.input_indices)
     weights = weights.cuda()
@@ -92,6 +93,7 @@ class Op(nn.Module):
       activated = activation_map[activation](torch.gather(x, 1, indices))
       x = x.scatter(1, indices, activated)
     tape[:, self.output_indices] = x
+    del x
     return tape
 
 class Model(nn.Module):
@@ -100,6 +102,7 @@ class Model(nn.Module):
 
     # Arguments
       graph: graph datastructure
+      initialization (optional): how to initialize weights. Uses He initialization by default.
 
     # Attributes
       tape_size: length of a flattened tensor representing all inputs,
@@ -127,6 +130,9 @@ class Model(nn.Module):
     self.loss_function = None
 
   def construct(self):
+    # initialize CUDA
+    print("Initializing CUDA")
+    _ = torch.zeros(1).cuda()
     i = 1 # indexing starts at 1 because the 0 index is always 0
     for input_node in self.inputs:
       input_node.tape_index = i
@@ -135,7 +141,8 @@ class Model(nn.Module):
     # time complexity for assigning indices to nodes is O(n^2)
     print("Indexing Nodes...")
     remaining_nodes = [node for node in self.hidden + self.outputs]
-    idx_nodes = len(remaining_nodes)
+    num_nodes = len(remaining_nodes)
+    assigned_nodes = 0
     ops = []
     # store node op ids in dict
     id_node_map = {}
@@ -151,8 +158,9 @@ class Model(nn.Module):
           node.tape_index = i
           i += 1
           op_nodes.append(node)
-          c = '\r' if op_nodes == idx_nodes else '\r'
-          print("[{}/{}]".format(len(op_nodes), idx_nodes), end=c)
+          assigned_nodes += 1
+          c = '\n' if assigned_nodes == num_nodes else '\r'
+          print("[{}/{}]".format(assigned_nodes, num_nodes), end=c)
       # make sure all nodes of op id are available
       for node in op_nodes:
         fails = []
@@ -211,7 +219,7 @@ class Model(nn.Module):
       t.start('Op {}'.format(i))
       tape = op.forward(tape)
       t.end('Op {}'.format(i))
-    self.tape = tape
+    # TODO: implement gather here
     return tape[:, self.output_indices]
 
   def compile(self, optimizer, loss_function):
@@ -242,7 +250,6 @@ class Model(nn.Module):
     for epoch in range(0, epochs):
       epoch_loss = 0
       for batch in range(0, num_batches):
-        batch_time = time.time()
         start = batch * batch_size
         end = min((batch + 1) * batch_size, len(X_tr))
         range_select = torch.arange(start, end, dtype=torch.long).cuda()
@@ -261,3 +268,4 @@ class Model(nn.Module):
         print("░" * (40 - bars), end="\r")
       epoch_loss /= num_batches
       print("epoch [{}/{}] loss: {}".format(epoch + 1, epochs, epoch_loss), end=" " * 30 + "\n")
+    self.tape = None
