@@ -11,7 +11,7 @@ of the previous layer.
 
 The recent work from [FAIR](https://arxiv.org/abs/1904.01569) shows that some randomly
 wired neural networks have competitive performance on ImageNet. Also, Google introduced
-[Weight Agnostic Neural Networks](https://arxiv.org/abs/1906.04358) which focuses on evolving
+[Weight Agnostic Neural Networks](https://weightagnostic.github.io/) which focuses on evolving
 neural network architectures with uniform weights between all connections.
 
 This repository is a starting point for exploring how to design and optimize neural networks
