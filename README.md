@@ -1,22 +1,14 @@
 # Freewire: Freely Wired Neural Networks
 Freewire is a Keras-like API for creating optimized freely wired neural networks to run
 on CUDA. Freely wired neural networks are defined at the level of individual nodes (or "neurons") 
-and connections between them, instead of at the level of homogeneous layers.
-
-The SOTA in deep learning is often propelled by unique neural network architectures. For 
-example, residual connections as implemented by [ResNet](https://arxiv.org/abs/1512.03385) 
-and [DenseNet](https://arxiv.org/abs/1608.06993) make it feasible to train larger neural networks
-and achieve greater accuracy than models with layers that only operate on the representation
-of the previous layer.
-
-The recent work from [FAIR](https://arxiv.org/abs/1904.01569) shows that some randomly
-wired neural networks have competitive performance on ImageNet. Also, Google introduced
-[Weight Agnostic Neural Networks](https://weightagnostic.github.io/) which focuses on evolving
-neural network architectures with uniform weights between all connections.
+and their connections, instead of at the level of homogeneous layers.
+The goal of Freewire is to make it so that any arbitrary DAG of artificial neurons 
+can be defined first and the optimized set of operations can be generated at runtime
+and run on CUDA.
 
 This repository is a starting point for exploring how to design and optimize neural networks
 that can be wired in very novel ways at the level of individual artificial neurons, while
-retaining the ability to train them with backpropagation.
+retaining the speed and memory efficiency of traditional neural networks.
 
 ### Parallel Operations, not Layers
 Instead of viewing a network as a series of layers that each have their own representation,
@@ -28,11 +20,6 @@ neural network that it represents on the right (biases are left out in this imag
 Also note than the 1D tape is extended to 2D to allow training in batches.
 
 <img src="https://i.imgur.com/ouGgwEQ.png" height="300"><img src="https://i.imgur.com/13KNQ6f.png" height="300">
-
-The goal of Freewire is to make it so that any arbitrary DAG of artificial neurons 
-can be defined first and the optimized set of operations can be generated at runtime
-and run on CUDA.
-
 
 ### XOR Gate Example
 ```python
@@ -66,11 +53,15 @@ print("1 xor 1:", m([1, 1]))
 See the `examples` folder for more examples, including a network for MNIST with randomly wired layers.
 
 ### Installation
-`git clone` this repository and install project requirements with `pip install -r requirements.txt`
-Requirements are:
+
+```
+git clone https://github.com/noahtren/Freewire
+cd Freewire
+pip install -e .
+```
+
+This will automatically install the requirements in `requirements.txt`:
 * numpy
 * torch==1.2.0
 * graphviz
 * pydot
-
-Then install this package with `pip install .`
