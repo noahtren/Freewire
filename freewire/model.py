@@ -211,7 +211,6 @@ class Model(nn.Module):
     else:
       tape = torch.zeros(batch_size, self.tape_size).cuda()
     t.end('Initialize tape')
-    # TODO: implement scatter operation here 
     t.start('Writing to tape')
     tape[:, 1:self.input_size+1] = x
     t.end('Writing to tape')
@@ -219,7 +218,6 @@ class Model(nn.Module):
       t.start('Op {}'.format(i))
       tape = op.forward(tape)
       t.end('Op {}'.format(i))
-    # TODO: implement gather here
     return tape[:, self.output_indices]
 
   def compile(self, optimizer, loss_function):
