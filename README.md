@@ -1,6 +1,6 @@
 # Freewire: Freely Wired Neural Networks
 Freewire is a Keras-like API for creating optimized freely wired neural networks to run
-on CUDA. Freely wired neural networks operate at the level of individual nodes (or "neurons") 
+on CUDA. Freely wired neural networks are defined at the level of individual nodes (or "neurons") 
 and connections between them, instead of at the level of homogeneous layers.
 
 The SOTA in deep learning is often propelled by unique neural network architectures. For 
