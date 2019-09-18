@@ -75,8 +75,7 @@ m = Model(g, initialization="he")
 visualize(g, title="architecture_and_weights")
 ```
 
-<img src="https://i.imgur.com/9SMngcp.png" height="400">
-<img src="https://i.imgur.com/MAZdvZC.png" height="400">
+<img src="https://i.imgur.com/9SMngcp.png" height="400"><img src="https://i.imgur.com/MAZdvZC.png" height="400">
 
 ### More Examples
 See the `examples` folder for more examples, including a network for MNIST with randomly wired layers.
