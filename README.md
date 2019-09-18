@@ -6,8 +6,6 @@ The goal of Freewire is to make it so that any arbitrary DAG of artificial neuro
 can be defined first and the optimized set of operations can be generated at runtime
 and run on CUDA.
 
-Randomly wired neural networks 
-
 This repository is a starting point for exploring how to design and optimize neural networks
 that can be wired in very novel ways at the level of individual artificial neurons, while
 retaining the speed and memory efficiency of traditional neural networks.
