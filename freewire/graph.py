@@ -71,3 +71,5 @@ class Graph:
     self.hidden_nodes = hidden_nodes
     self.output_nodes = output_nodes
     self.nodes = input_nodes + hidden_nodes + output_nodes
+    for node in self.output_nodes:
+      node.is_output = True

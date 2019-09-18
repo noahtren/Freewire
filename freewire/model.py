@@ -128,6 +128,8 @@ class Model(nn.Module):
     # settings to compile
     self.optimizer = None
     self.loss_function = None
+    # update randomized weights in graph
+    self.update_graph()
 
   def construct(self):
     # initialize CUDA

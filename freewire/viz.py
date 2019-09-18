@@ -79,8 +79,6 @@ def visualize(g, title='Graph', inputs=None):
     label = ""
     if node.activation == 'linear':
       label += "Σx + {:.2f}".format(node.bias)
-    elif node.activation == 'relu':
-      label += "max(Σx + {:.2f}, 0)".format(node.bias)
     else:
       label += "{}(Σx + {:.2f})".format(node.activation, node.bias)
     if n_max - n_min == 0:
