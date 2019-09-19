@@ -3,7 +3,6 @@ import random
 import mnist
 import numpy as np
 import torch
-import matplotlib.pyplot as plt
 
 from freewire import Model
 from freewire import Node, Graph
