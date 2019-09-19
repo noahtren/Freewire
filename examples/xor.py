@@ -17,7 +17,7 @@ data = [
 ]
 target = [0, 1, 1, 0]
 
-m.compile('sgd', 'mse')
+m.compile(optimizer='sgd', loss_function='mse')
 m.fit(data, target, epochs=10000, batch_size=1)
 print("0 xor 0:", m([0, 0]))
 print("0 xor 1:", m([0, 1]))
