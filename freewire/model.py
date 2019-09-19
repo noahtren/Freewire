@@ -65,13 +65,21 @@ class Op(nn.Module):
       activation_index_map[key] = torch.tensor(activation_index_map[key]).cuda()
     self.activation_index_map = activation_index_map
 
-  def update_graph(self):
+  def update_graph(self, op_i, op_num):
     """Called by Model.update_graph()
     """
+    bias = self.bias.cpu()
+    weights = self.weights.cpu()
     for i, node in enumerate(self.nodes):
-      node.bias = self.bias[i].item()
+      node.bias = bias[i].item()
+      if bias.grad is not None:
+        node.grad = bias.grad[i].item()
       for j, in_edge in enumerate(node.in_edges):
-        in_edge.weight = self.weights[i, j].item()
+        in_edge.weight = weights[i, j].item()
+        if bias.grad is not None:
+          in_edge.grad = weights.grad[i, j].item()
+      print("op: [{}/{}], node: [{}/{}]".format(op_i + 1, op_num,
+        i + 1, len(self.nodes)) + " " * 5, end="\r")
 
   def forward(self, tape):
     # gather relevant values from network tape
@@ -189,16 +197,22 @@ class Model(nn.Module):
   def update_graph(self):
     """Update values in graph data structure used for visualization.
     """
-    for op in self.ops:
-      op.update_graph()
+    print("Updating graph")
+    for i, op in enumerate(self.ops):
+      op.update_graph(i, len(self.ops))
     return Graph(self.inputs, self.hidden, self.outputs)
   
   def count_params(self):
     return sum([len(node.in_edges) for node in self.hidden + self.outputs])
 
-  def forward(self, x):
+  def forward(self, x, output_grad=False):
     """Write input to tape and perform operations in order. Return
     output indices from tape.
+
+    Args:
+      x: input tensor of size (batch, input_size)
+      output_grad: whether or not to calculate the gradient of the output.
+        Defaults to false
     """
     if not isinstance(x, torch.Tensor):
       x = torch.tensor(x, dtype=torch.float).cuda()
@@ -220,7 +234,12 @@ class Model(nn.Module):
       t.start('Op {}'.format(i))
       tape = op.forward(tape)
       t.end('Op {}'.format(i))
-    return tape[:, self.output_indices]
+    self.tape = tape
+    output = tape[:, self.output_indices]
+    if output_grad:
+      output.backward()
+      self.update_graph()
+    return output
 
   def compile(self, optimizer, loss_function):
     if optimizer == 'adam':
@@ -269,3 +288,4 @@ class Model(nn.Module):
       epoch_loss /= num_batches
       print("epoch [{}/{}] loss: {}".format(epoch + 1, epochs, epoch_loss), end=" " * 30 + "\n")
     self.tape = None
+    self.update_graph()

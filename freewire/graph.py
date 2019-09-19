@@ -44,12 +44,14 @@ class Node:
     self.tape_index = -1
     self.assigned = False
     self.bias = 0
+    self.grad = 0
 
 class Edge:
   def __init__(self, start, end):
     self.start = start
     self.end = end
     self.weight = 0
+    self.grad = 0
 
 class Graph:
   """Graph representing topology of freely wired neural network.
