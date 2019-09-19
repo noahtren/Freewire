@@ -70,16 +70,21 @@ class Op(nn.Module):
     """
     bias = self.bias.cpu()
     weights = self.weights.cpu()
+    bias_grad, weights_grad = None, None
+    if self.bias.grad is not None:
+      bias_grad = self.bias.grad.cpu()
+      weights_grad = self.weights.grad.cpu()
     for i, node in enumerate(self.nodes):
       node.bias = bias[i].item()
-      if bias.grad is not None:
-        node.grad = bias.grad[i].item()
+      if bias_grad is not None:
+        node.grad = bias_grad[i].item()
       for j, in_edge in enumerate(node.in_edges):
         in_edge.weight = weights[i, j].item()
-        if bias.grad is not None:
-          in_edge.grad = weights.grad[i, j].item()
+        if bias_grad is not None:
+          in_edge.grad = weights_grad[i, j].item()
+      end = "\n" if i + 1 == len(self.nodes) else "\r"
       print("op: [{}/{}], node: [{}/{}]".format(op_i + 1, op_num,
-        i + 1, len(self.nodes)) + " " * 5, end="\r")
+        i + 1, len(self.nodes)) + " " * 5, end=end)
 
   def forward(self, tape):
     # gather relevant values from network tape
