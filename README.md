@@ -91,3 +91,4 @@ This will automatically install the requirements in `requirements.txt`:
 * torch==1.2.0
 * graphviz
 * pydot
+* Optional: the `mnist` package to run the example on MNIST dataset
