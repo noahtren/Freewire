@@ -28,3 +28,10 @@ def test_densenet():
   assert len(g.hidden_nodes[2].in_edges) == 4
   assert len(g.output_nodes) == 1
   assert g.hidden_nodes[0].activation == 'relu'
+
+def test_model():
+  g = neuron_level_densenet(2, 5, 1, 'relu')
+  assert g.input_nodes[0].bias == 0
+  assert g.input_nodes[0].out_edges[0].weight == 0
+  m = Model(g)
+  assert isinstance(g.input_nodes[0].out_edges[0].weight, float)
