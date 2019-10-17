@@ -1,25 +1,29 @@
 # Freewire: Freely Wired Neural Networks
 Freewire is a Keras-like API for creating optimized freely wired neural networks to run
-on CUDA. Freely wired neural networks are defined at the level of individual nodes (or "neurons") 
+on CUDA. Freely wired neural networks are defined at the level of individual nodes (or neurons) 
 and their connections, instead of at the level of homogeneous layers.
 The goal of Freewire is to make it so that any arbitrary DAG of artificial neurons 
-can be defined first and the optimized set of operations can be generated at runtime
+can be defined first and the optimized set of operations can be compiled at runtime
 and run on CUDA.
 
 This repository is a starting point for exploring how to design and optimize neural networks
 that can be wired in very novel ways at the level of individual artificial neurons, while
-retaining the speed and memory efficiency of traditional neural networks.
+retaining the speed and memory efficiency of traditional neural networks. Future versions
+will likely make use of sparse tensor operations.
 
-### Parallel Operations, not Layers
-Instead of viewing a network as a series of layers that each have their own representation,
-freely wired neural networks carry out a series of parallelized operations that extend a
-flat, 1D tape of numbers. This is a generalization of what layers already do (if their representations were flattened), 
-but doesn't specify that the inputs and activation functions of each node in a given operation need to be homogeneous. 
+### Compiling Parallel Operations
+Since freely wired neural networks may not fit the paradigm of having layers, it's necessary to
+consider ways to optimize them for training and inference. The most time-efficient implementation
+of a freely wired network would be a series of parallelized operations that extend a 1D tape of
+numbers, where each operation is a function of the input and the results of all previous operations.
+This code uses a topological sorting algorithm to find the minimum number of required operations
+for a given graph.
+
 This graphic shows the 1D tape on the left and the freely wired
 neural network that it represents on the right (biases are left out in this image for simplicity).
 Also note than the 1D tape is extended to 2D to allow training in batches.
 
-<img src="https://i.imgur.com/ouGgwEQ.png" height="300"><img src="https://i.imgur.com/13KNQ6f.png" height="300">
+<img src="https://i.imgur.com/ouGgwEQ.png" height="300"><img src="https://i.imgur.com/PgAAQ7k.png" height="300">
 
 ### XOR Gate Example
 ```python
